@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScaleHaven — Dashboard</title>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.7.0/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000;
+    --accent:#2E8BFF;
+    --accent-2:#1565E0;
+    --accent-soft:rgba(46,139,255,0.14);
+    --accent-ink:#04121f;
+    --color-background-primary:#101010;
+    --color-background-secondary:#1a1a1a;
+    --color-background-tertiary:#2d2d2d;
+    --color-text-primary:#ffffff;
+    --color-text-secondary:#9a9a9a;
+    --color-text-tertiary:#6a6a6a;
+    --color-text-danger:#ff6b6b;
+    --color-text-warning:#ffa502;
+    --color-text-success:#4cd137;
+    --color-background-danger:rgba(255,107,107,0.15);
+    --color-background-warning:rgba(255,165,2,0.15);
+    --color-background-success:rgba(76,209,55,0.15);
+    --color-border-tertiary:#333333;
+    --border-radius-md:8px;
+    --border-radius-lg:12px;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--color-text-primary);font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 20px 64px}
+
+  /* header */
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid var(--accent)}
+  .brand-mark{width:46px;height:46px;border-radius:11px;flex:0 0 auto;position:relative;overflow:hidden;background:linear-gradient(135deg,#3da0ff 0%,#1565e0 100%);box-shadow:0 6px 22px rgba(46,139,255,0.35)}
+  .brand-mark::after{content:"";position:absolute;right:-10px;bottom:-10px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.55)}
+  .brand-mark::before{content:"";position:absolute;left:7px;top:7px;width:16px;height:30px;border-radius:5px;background:rgba(255,255,255,0.22)}
+  .brand-text h1{margin:0;font-family:'Anton',sans-serif;font-weight:400;font-size:30px;letter-spacing:1px;text-transform:uppercase;color:#fff;-webkit-text-fill-color:#fff;background:none}
+  .brand-text .sub{font-size:11px;color:var(--color-text-secondary);margin-top:3px;letter-spacing:.5px}
+  .status{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--color-text-secondary);background:var(--color-background-tertiary);border:1px solid var(--color-border-tertiary);padding:5px 12px;border-radius:20px;white-space:nowrap}
+  .status .dot{width:7px;height:7px;border-radius:50%;background:var(--color-text-secondary)}
+  .status.live{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .status.live .dot{background:var(--accent-ink)}
+  .status.cached{background:var(--color-background-warning);color:var(--color-text-warning);border-color:transparent}
+  .status.cached .dot{background:var(--color-text-warning)}
+  button{background:var(--color-background-secondary);color:var(--color-text-primary);border:1px solid var(--color-border-tertiary);padding:8px 14px;border-radius:var(--border-radius-md);cursor:pointer;font-family:'Inter',sans-serif;transition:border-color .2s ease,background .2s ease}
+  button:hover{border-color:var(--accent);background:var(--color-background-tertiary)}
+
+  /* tabs - pill group */
+  .tabs{display:flex;gap:4px;margin-bottom:28px;background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:10px;padding:4px;overflow-x:auto}
+  .tab{background:transparent;border:none;border-radius:8px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:10px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transition:all .2s ease}
+  .tab:hover{background:var(--color-background-tertiary);color:var(--color-text-primary)}
+  .tab.active,.tab.active:hover{background:var(--accent);color:var(--accent-ink)}
+
+  .view[hidden]{display:none}
+  .row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;gap:12px}
+  .row > div:first-child{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:1px;color:#fff}
+  .h-sec{font-family:'Anton',sans-serif;font-weight:400;font-size:15px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:16px}
+  .h-sub{font-family:'Inter',sans-serif;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--color-text-primary);margin-bottom:10px}
+  .muted{font-size:11px;color:var(--color-text-secondary)}
+  .rule{border-top:1px solid var(--color-border-tertiary);margin:24px 0}
+
+  .kpis{display:grid;gap:12px;margin-bottom:20px}
+  .kcard{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:12px;padding:18px;transition:border-color .2s ease}
+  .kcard:hover{border-color:var(--accent)}
+  .kcard .lab{font-size:9px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:1.2px;font-weight:700}
+  .kcard .val{font-family:'Anton',sans-serif;font-weight:400;font-size:30px;margin-top:6px;line-height:1.05;color:var(--accent)}
+  .card{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:12px;padding:20px}
+  .tbl-wrap{overflow-x:auto;margin-bottom:20px}
+  table{width:100%;font-size:12px;border-collapse:collapse}
+  thead tr{border-bottom:1px solid var(--color-border-tertiary)}
+  th{text-align:left;padding:10px 10px;color:var(--accent);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  td{padding:10px 10px;vertical-align:top;color:var(--color-text-primary);border-bottom:1px solid rgba(255,255,255,0.05)}
+  tbody tr:hover td{background:var(--accent-soft)}
+  .r{text-align:right}
+  .c{text-align:center}
+  .pill{display:inline-block;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+  .chart-box{position:relative;width:100%;height:220px;margin-bottom:1rem}
+  a{color:var(--accent)}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+  .controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:24px}
+  .range-btn{padding:6px 12px;border-radius:6px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;border:1px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-secondary);transition:all .2s ease}
+  .range-btn:hover{background:var(--color-background-tertiary);color:var(--color-text-primary)}
+  .range-btn.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .updated{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--color-text-tertiary)}
+  @media(max-width:700px){ .grid2{grid-template-columns:1fr !important} .kpis{grid-template-columns:repeat(2,1fr) !important} .wrap{padding:16px 14px 48px} .updated{margin-left:0;width:100%} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="brand">
+  <div class="brand-mark" aria-hidden="true"></div>
+  <div class="brand-text">
+    <h1>ScaleHaven</h1>
+    <div class="sub" id="brandSub">@tomastraan | Tomas Tran</div>
+  </div>
+  <span class="status live" id="dataStatus" title="Data source status">
+    <span class="dot"></span>
+    <span id="statusLabel">Loading</span>
+    <span id="statusDetail" style="color:var(--color-text-tertiary)"></span>
+  </span>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Dashboard views">
+  <button class="tab active" id="tab-overview" role="tab" aria-selected="true" onclick="switchView('overview')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Overview</button>
+  <button class="tab" id="tab-outbound" role="tab" aria-selected="false" onclick="switchView('outbound')"><i class="ti ti-send" aria-hidden="true"></i> Outbound</button>
+  <button class="tab" id="tab-funnel" role="tab" aria-selected="false" onclick="switchView('funnel')"><i class="ti ti-filter" aria-hidden="true"></i> Funnel</button>
+  <button class="tab" id="tab-content" role="tab" aria-selected="false" onclick="switchView('content')"><i class="ti ti-player-play" aria-hidden="true"></i> Content</button>
+  <button class="tab" id="tab-crm" role="tab" aria-selected="false" onclick="switchView('crm')"><i class="ti ti-users" aria-hidden="true"></i> CRM</button>
+</nav>
+
+<div class="controls" id="rangeBar" role="group" aria-label="Timeframe">
+  <button type="button" class="range-btn" data-days="1">1D</button>
+  <button type="button" class="range-btn" data-days="7">7D</button>
+  <button type="button" class="range-btn" data-days="14">14D</button>
+  <button type="button" class="range-btn" data-days="30">30D</button>
+  <button type="button" class="range-btn" data-days="60">60D</button>
+  <button type="button" class="range-btn" data-days="90">90D</button>
+  <button type="button" class="range-btn active" data-days="0">All</button>
+  <span class="updated" id="lastUpdated"></span>
+</div>
+
+
+<!-- ============================ OVERVIEW ============================ -->
+<section id="view-overview" class="view">
+  <div class="row">
+    <div style="font-size:18px;font-weight:500;">Business overview</div>
+    <div class="muted" id="ovDate">—</div>
+  </div>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
+    <div class="kcard"><div class="lab">Prospects reached</div><div class="val" id="kpiDMs">—</div></div>
+    <div class="kcard"><div class="lab">Calls booked</div><div class="val" id="kpiCalls">—</div></div>
+    <div class="kcard"><div class="lab">Deals closed</div><div class="val" id="kpiCloses">—</div></div>
+    <div class="kcard"><div class="lab">Revenue (closed)</div><div class="val" id="kpiRevenue">$6K</div><div class="muted" id="kpiRevLabel">Marcel + Leah · 2 deals</div></div>
+  </div>
+
+  <div class="h-sub">Content snapshot</div>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr);">
+    <div class="kcard"><div class="lab">Followers gained</div><div class="val" id="ovFollowers" style="color:var(--color-text-success)">—</div></div>
+    <div class="kcard"><div class="lab">Total reach</div><div class="val" id="ovReach">—</div></div>
+    <div class="kcard"><div class="lab">Content leads</div><div class="val" id="ovLeads">—</div></div>
+    <div class="kcard"><div class="lab">Avg engagement</div><div class="val" id="ovEng">—</div></div>
+  </div>
+
+  <div class="rule"></div>
+
+  <div class="h-sec">Profile funnel — monthly</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Month</th><th class="r">DMs</th><th class="r">Convos</th><th class="r">Flip %</th><th class="r">Leads</th><th class="r">Calls</th><th class="r">Show</th><th class="r">Close</th></tr></thead>
+    <tbody id="ovMonthly"><tr><td colspan="8" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+  <div class="muted">Monthly figures are live per month from the sheet. The KPIs above respect the timeframe filter.</div>
+</section>
+
+
+<!-- ============================ OUTBOUND ============================ -->
+<section id="view-outbound" class="view" hidden>
+  <div class="row"><div style="font-size:18px;font-weight:500;">Outbound activity</div><div class="muted">DMs · live</div></div>
+  <div class="h-sub">Weekly KPI targets</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>KPI</th><th class="c">Weekly target</th><th class="c">Monthly total</th><th>Why this number</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:500">Qualified DMs sent</td><td class="c" style="font-weight:500">30</td><td class="c">100+</td><td style="color:var(--color-text-secondary)">All must pass 5-check. Quality over volume.</td></tr>
+      <tr><td style="font-weight:500">Conversations started</td><td class="c" style="font-weight:500">7-8</td><td class="c">25-28</td><td style="color:var(--color-text-secondary)">25% flip rate (your proven average).</td></tr>
+      <tr><td style="font-weight:500">Calls booked</td><td class="c" style="font-weight:500">2</td><td class="c">5-7</td><td style="color:var(--color-text-secondary)">~50% of qualified book a call.</td></tr>
+      <tr><td style="font-weight:500">Show-ups</td><td class="c" style="font-weight:500">1-2</td><td class="c">4-6</td><td style="color:var(--color-text-secondary)">80% show rate with confirmation sequence.</td></tr>
+      <tr style="background:rgba(93,202,165,0.08)"><td style="font-weight:500">Deals closed</td><td class="c" style="font-weight:500">0-1</td><td class="c" style="font-weight:500">2</td><td style="color:var(--color-text-secondary)">25% close rate with qualified prospects = $8K.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="h-sub">DMs sent (weekly history → daily)</div>
+  <div class="chart-box" style="height:200px"><canvas id="weeklyDMs2" role="img" aria-label="Weekly DMs sent">Weekly DMs sent.</canvas></div>
+  <div class="rule"></div>
+  <div class="h-sec">Call failure analysis</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:1.5rem;">
+    <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:500;color:#E24B4A">3</div><div class="muted" style="color:var(--color-text-secondary)">Wrong niche / curious</div><div class="muted">Ashton, Brandon, Emil</div></div>
+    <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:500;color:#BA7517">1</div><div class="muted" style="color:var(--color-text-secondary)">Can't afford</div><div class="muted">Luke</div></div>
+    <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:500;color:#888780">2</div><div class="muted" style="color:var(--color-text-secondary)">Canceled / went elsewhere</div><div class="muted">Emanuel, Clay</div></div>
+    <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:500;color:var(--accent)">1</div><div class="muted" style="color:var(--color-text-secondary)">Stale followup</div><div class="muted">Peter (12 weeks)</div></div>
+  </div>
+</section>
+
+
+<!-- ============================ FUNNEL ============================ -->
+<section id="view-funnel" class="view" hidden>
+  <div class="row"><div style="font-size:18px;font-weight:500;">Conversion funnel</div><div class="muted">DMs → closes · live</div></div>
+  <div class="h-sub" id="funnelHeading">Funnel conversion</div>
+  <div class="chart-box" style="height:260px"><canvas id="funnelChart2" role="img" aria-label="Funnel from DMs to closes">Funnel breakdown.</canvas></div>
+  <div class="h-sub">Stage-to-stage drop-off</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Stage</th><th class="r">Count</th><th class="r">Conversion from previous</th></tr></thead>
+    <tbody id="funnelStages"><tr><td>DMs sent</td><td class="r">—</td><td class="r">—</td></tr></tbody>
+  </table>
+  </div>
+  <div class="rule"></div>
+  <div class="h-sec">3-month funnel (Mar-May actuals)</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Month</th><th class="r">DMs</th><th class="r">Convos</th><th class="r">Flip %</th><th class="r">Leads</th><th class="r">Calls</th><th class="r">Show</th><th class="r">Cold close</th></tr></thead>
+    <tbody>
+      <tr><td>March</td><td class="r">103</td><td class="r">26</td><td class="r">25%</td><td class="r">3</td><td class="r">2</td><td class="r">1</td><td class="r" style="color:var(--color-text-danger)">0</td></tr>
+      <tr><td>April</td><td class="r">123</td><td class="r">35</td><td class="r">28%</td><td class="r">7</td><td class="r">1</td><td class="r">1</td><td class="r" style="color:var(--color-text-danger)">0</td></tr>
+      <tr><td>May</td><td class="r">349</td><td class="r">84</td><td class="r">24%</td><td class="r">5</td><td class="r">7</td><td class="r">5</td><td class="r" style="color:var(--color-text-danger)">0</td></tr>
+      <tr style="background:var(--color-background-secondary)"><td style="font-weight:500">Total</td><td class="r" style="font-weight:500">575</td><td class="r" style="font-weight:500">145</td><td class="r" style="font-weight:500">25%</td><td class="r" style="font-weight:500">15</td><td class="r" style="font-weight:500">10</td><td class="r" style="font-weight:500">7</td><td class="r" style="font-weight:500;color:var(--color-text-danger)">0</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ============================ CONTENT ============================ -->
+<section id="view-content" class="view" hidden>
+  <div class="row"><div style="font-size:18px;font-weight:500;">Content performance</div><div class="muted" id="contentNote">live</div></div>
+  <div class="kpis" style="grid-template-columns:repeat(5,1fr);">
+    <div class="kcard"><div class="lab">Followers gained</div><div class="val" id="cFollowers" style="color:var(--color-text-success)">—</div></div>
+    <div class="kcard"><div class="lab">Total reach</div><div class="val" id="cReach">—</div></div>
+    <div class="kcard"><div class="lab">Posts</div><div class="val" id="cPosts">—</div></div>
+    <div class="kcard"><div class="lab">Content leads</div><div class="val" id="cLeads">—</div></div>
+    <div class="kcard"><div class="lab">Avg engagement</div><div class="val" id="cEng">—</div></div>
+  </div>
+  <div class="rule"></div>
+  <div class="h-sec">Platform breakdown</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Platform</th><th class="r">Posts</th><th class="r">Reach</th><th class="r">Likes</th><th class="r">Followers</th><th class="r">Leads</th><th class="r">Eng. rate</th></tr></thead>
+    <tbody id="platformRows"><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+  <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem;">
+    <div><div class="h-sub">Weekly IG reach</div><div class="chart-box" style="height:200px"><canvas id="igReach" role="img" aria-label="Weekly IG reach">Weekly IG reach.</canvas></div></div>
+    <div><div class="h-sub">Weekly followers + leads</div><div class="chart-box" style="height:200px"><canvas id="folLeads" role="img" aria-label="Weekly followers and leads">Weekly followers and leads.</canvas></div></div>
+  </div>
+  <div class="rule"></div>
+  <div class="h-sec">Posts (Instagram)</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Date</th><th>Link</th><th class="r">Reach</th><th class="r">Likes</th><th class="r">Saves</th></tr></thead>
+    <tbody id="igPostRows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+  <div class="h-sec">Top formats (Instagram)</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Post type</th><th class="r">Posts</th><th class="r">Reach</th><th class="r">Likes</th><th class="r">Leads</th></tr></thead>
+    <tbody id="formatRows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+  <div class="rule"></div>
+  <div class="h-sec">Trial Reel Engine</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Link</th><th class="r">Reach</th><th class="r">Eng. %</th><th class="r">Followers</th><th class="r">Watch</th><th>Status (auto)</th></tr></thead>
+    <tbody id="reelRows"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+  <div class="h-sec">Story performance</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Story date</th><th class="r">Slides</th><th class="r">Views</th><th class="r">Avg exit</th><th class="r">Completion</th></tr></thead>
+    <tbody id="storyRows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ============================ CRM ============================ -->
+<section id="view-crm" class="view" hidden>
+  <div class="row"><div style="font-size:18px;font-weight:500;">CRM pipeline</div><div class="muted" id="crmNote">live</div></div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Name</th><th>Platform</th><th>Booked call</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody id="crmRows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+  <div class="h-sec">Stale leads — need a decision</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Name</th><th>Status</th><th>Platform</th><th>Action / context</th></tr></thead>
+    <tbody id="staleRows"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+  </table>
+  </div>
+  <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div>
+      <div class="h-sec">Traffic source (booked calls)</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Platform</th><th class="r">Calls</th><th class="r">Share</th></tr></thead>
+        <tbody id="trafficRows"><tr><td colspan="3" class="muted">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+    <div>
+      <div class="h-sec">Closed deals</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Client</th><th>Status</th></tr></thead>
+        <tbody id="closedRows"><tr><td colspan="2" class="muted">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+<!-- ===================================================================
+     Live data — ScaleHaven workbook (published to web as CSV).
+     Each tab is read by its gid. Outbound/Funnel from the DMs tracker,
+     Content from Instagram/FB/Reels/Story tabs, CRM from the CRM tab.
+     =================================================================== -->
+<script>
+const PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR-Kv2akf8hlZknrINZ0Sw5AXlA7U4KzRydRKL6pHajVz8TiwKBbYLqsSQDj3ZEVr2KDPIAD1lQzp6k/pub?single=true&output=csv&gid=';
+const GID = { dms:'1735786689', dailyIg:'1169029941', dailyFb:'1464046360', crm:'2028944609', ig:'1898926088', fb:'932275680', reels:'381510415', story:'688319385', igFeed:'2079584140' };
+
+// MANUAL revenue: warmRevenue is NOT pulled from the sheet (the CRM tab has no revenue column).
+// Update warmRevenue + warmRevLabel by hand whenever a warm deal closes.
+const FALLBACK = { asOf:'Jun 5, 2026', totalDMs:589, convos:145, leads:18, callsBooked:11, showUps:6, closes:2,
+  warmRevenue:'$6K', warmRevLabel:'Marcel + Leah · 2 deals',
+  weekLabels:['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15'],
+  dmsByWeek:[0,20,45,30,8,7,5,42,14,78,80,103,140,4,13] };
+
+// MANUAL closed deals: clients NOT in the CRM sheet's prospect pipeline (founding clients / referrals).
+// These show in the CRM tab's "Closed deals" box. Add/remove {name, note} entries here by hand.
+const MANUAL_CLOSED = [
+  { name:'Marcel', note:'Closed 19.2 · $3K · founding client' }
+];
+
+/* ---------- helpers ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[],field='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){field+='"';i++;} else q=false; } else field+=c; }
+    else { if(c==='"')q=true; else if(c===','){row.push(field);field='';}
+      else if(c==='\n'){row.push(field);rows.push(row);row=[];field='';}
+      else if(c!=='\r')field+=c; } }
+  if(field.length||row.length){row.push(field);rows.push(row);}
+  return rows;
+}
+const num = v => { const n=parseInt(String(v).replace(/[^0-9-]/g,''),10); return isNaN(n)?0:n; };
+const pct = v => { const n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:n; };
+const fmtK = n => n>=1000 ? (Math.round(n/100)/10)+'K' : ''+n;
+const fmtN = n => n.toLocaleString('en-US');
+const esc = s => String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+
+async function fetchCSV(gid){
+  const res = await fetch(PUB+gid,{cache:'no-store'});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const t = await res.text();
+  if(/^\s*</.test(t)) throw new Error('not CSV');
+  return t;
+}
+// rows -> array of objects, using the row that contains headerKey as the header row
+function toObjects(csv, headerKey){
+  const rows = parseCSV(csv);
+  let hi = rows.findIndex(r => r.some(c => c.trim().toLowerCase() === headerKey.toLowerCase()));
+  if(hi<0) hi=0;
+  const header = rows[hi].map(h=>h.trim());
+  const out=[];
+  for(let i=hi+1;i<rows.length;i++){
+    const r=rows[i];
+    if(r.every(c=>c.trim()==='')) continue;
+    const o={}; header.forEach((h,j)=> o[h]=(r[j]||'').trim());
+    out.push(o);
+  }
+  return out;
+}
+
+/* ---------- dates + timeframe ---------- */
+const DAY=86400000;
+const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+function parseMD(str){ const m=String(str||'').match(/(\d{1,2})[.\/-](\d{1,2})(?:[.\/-](\d{2,4}))?/); if(!m) return null;
+  let mo=+m[1], d=+m[2], y=m[3]?+m[3]:2026; if(y<100)y+=2000; if(mo<1||mo>12||d<1||d>31) return null; return new Date(y,mo-1,d); }
+function parseWeekEnd(str){ const m=String(str||'').match(/([A-Za-z]{3,})\s+(\d{1,2})\s*-\s*(?:([A-Za-z]{3,})\s+)?(\d{1,2})/); if(!m) return null;
+  const mo1=MONTHS[m[1].slice(0,3).toLowerCase()]; if(mo1==null) return null; const mo2=m[3]?MONTHS[m[3].slice(0,3).toLowerCase()]:mo1; return new Date(2026,(mo2==null?mo1:mo2),+m[4]); }
+function fmtEU(str){ const s=String(str||'').trim(); if(!s) return s; const m=s.match(/^(\d{1,2})[.\/-](\d{1,2})(?:[.\/-](\d{2,4}))?(.*)$/); if(!m) return s; return m[2]+'.'+m[1]+(m[3]?'.'+m[3]:'')+(m[4]||''); }
+function parseObjs(csv, key){ const arr=toObjects(csv,key); arr.forEach(o=>o._d=parseMD(o['Post Date'])); return arr; }
+function parseIgFeed(csv){ // Supermetrics "IG Feed by Date": Media created, permalink, type, Reach, Comments, Likes, Saves
+  const rows=parseCSV(csv), posts=[];
+  for(let i=1;i<rows.length;i++){ const r=rows[i]; if(!r||r.length<7) continue;
+    const mm=String(r[0]||'').trim().match(/^(\d{4})-(\d{2})-(\d{2})/); if(!mm) continue;
+    posts.push({ _d:new Date(+mm[1],+mm[2]-1,+mm[3]), date:(+mm[3])+'.'+(+mm[2])+'.'+mm[1], link:(r[1]||'').trim(),
+      type:(r[2]||'').trim(), reach:num(r[3]), comments:num(r[4]), likes:num(r[5]), saves:num(r[6]) });
+  }
+  posts.sort((a,b)=>b._d-a._d);
+  return posts;
+}
+
+let RANGE=0, ANCHOR=null;
+let RAW={dms:[],ig:[],fb:[],reels:[],story:[],crm:[],igFeed:[]};
+let DATASETOK={outbound:false};
+function inRange(d){ if(!RANGE||!ANCHOR) return true; if(!d) return true; return d.getTime() > ANCHOR.getTime()-RANGE*DAY; }
+function computeAnchor(){ let mx=null; const c=d=>{ if(d&&(!mx||d>mx)) mx=d; };
+  RAW.dms.forEach(r=>c(r.date)); RAW.ig.forEach(o=>c(o._d)); RAW.fb.forEach(o=>c(o._d)); RAW.reels.forEach(o=>c(o._d)); RAW.story.forEach(o=>c(o._d)); RAW.crm.forEach(o=>c(o._d)); RAW.igFeed.forEach(o=>c(o._d)); ANCHOR=mx; }
+function updateLastUpdated(){ const el=document.getElementById('lastUpdated'); if(!el) return;
+  el.textContent = ANCHOR ? 'Last updated: '+ANCHOR.getDate()+'.'+(ANCHOR.getMonth()+1)+'.'+ANCHOR.getFullYear() : ''; }
+
+/* ---------- OUTBOUND / FUNNEL (DMs tracker) ---------- */
+function parseDMS(csv){
+  const rows = parseCSV(csv).filter(r=>r.length>1);
+  const header = rows.shift().map(h=>h.trim().toLowerCase());
+  const col = name => header.findIndex(h=>h.startsWith(name));
+  const cWeek=col('week'), cCamp=col('campiagn')>=0?col('campiagn'):col('campaign');
+  const cDM=col('dms'),cConv=col('convos'),cLead=col('leads'),cCall=col('booked call'),cShow=col('show up'),cClose=col('deal closed');
+  const recs=[];
+  rows.forEach((r,idx)=>{
+    const dm=num(r[cDM]),cv=num(r[cConv]),ld=num(r[cLead]),ca=num(r[cCall]),sh=num(r[cShow]),cl=num(r[cClose]);
+    const wk=(cWeek>=0&&r[cWeek])?r[cWeek].trim():'';
+    if(!(dm||cv||ld||ca||sh||cl||wk)) return;
+    const label=(cCamp>=0&&r[cCamp])?r[cCamp].replace(/dms\s*week/i,'W').replace(/\s+/g,''):'W'+(idx+1);
+    recs.push({label,week:wk,date:parseWeekEnd(wk),dm,cv,ld,ca,sh,cl});
+  });
+  return recs;
+}
+function parseDMY(str){ const m=String(str||'').match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})/); if(!m) return null;
+  let d=+m[1],mo=+m[2],y=+m[3]; if(y<100)y+=2000; if(mo<1||mo>12||d<1||d>31) return null; return new Date(y,mo-1,d); }
+function parseDailyDMS(csv){
+  const rows = parseCSV(csv).filter(r=>r.length>1);
+  const header = rows.shift().map(h=>h.trim().toLowerCase());
+  const col = name => header.findIndex(h=>h.startsWith(name));
+  const cDM=col('dms'),cConv=col('convos'),cLead=col('leads'),cCall=col('booked call'),cShow=col('show up'),cClose=col('deal closed');
+  const recs=[];
+  rows.forEach(r=>{
+    const ds=(r[0]||'').trim(); if(!ds) return;
+    const dt=parseDMY(ds);
+    recs.push({label:dt?(dt.getDate()+'/'+(dt.getMonth()+1)):ds, week:ds, date:dt,
+      dm:num(r[cDM]),cv:num(r[cConv]),ld:num(r[cLead]),ca:num(r[cCall]),sh:num(r[cShow]),cl:num(r[cClose])});
+  });
+  return recs;
+}
+// combine multiple daily rec lists (IG, FB, …) by date, summing each metric per day
+function mergeDaily(...lists){
+  const map={}, order=[];
+  lists.forEach(list=>(list||[]).forEach(r=>{
+    const key=r.date?('d'+r.date.getTime()):('w'+r.week);
+    if(!(key in map)){ map[key]={label:r.label,week:r.week,date:r.date,dm:0,cv:0,ld:0,ca:0,sh:0,cl:0}; order.push(key); }
+    const m=map[key]; m.dm+=r.dm; m.cv+=r.cv; m.ld+=r.ld; m.ca+=r.ca; m.sh+=r.sh; m.cl+=r.cl;
+  }));
+  return order.map(k=>map[k]).sort((a,b)=>((a.date&&a.date.getTime())||0)-((b.date&&b.date.getTime())||0));
+}
+function aggDMS(recs){
+  const d={asOf:'now',totalDMs:0,convos:0,leads:0,callsBooked:0,showUps:0,closes:0,warmRevenue:FALLBACK.warmRevenue,warmRevLabel:FALLBACK.warmRevLabel,weekLabels:[],dmsByWeek:[]};
+  let lastWeek='';
+  recs.forEach(r=>{ d.totalDMs+=r.dm; d.convos+=r.cv; d.leads+=r.ld; d.callsBooked+=r.ca; d.showUps+=r.sh; d.closes+=r.cl;
+    d.weekLabels.push(r.label); d.dmsByWeek.push(r.dm); if(r.week) lastWeek=r.week; });
+  d.asOf=lastWeek||'now';
+  return d;
+}
+function renderMonthly(recs){
+  const tb=document.getElementById('ovMonthly'); if(!tb) return;
+  if(!recs.length){ tb.innerHTML='<tr><td colspan="8" class="muted">No data.</td></tr>'; return; }
+  const MN=['Jan','Feb','March','April','May','June','July','Aug','Sep','Oct','Nov','Dec'];
+  const map={}, order=[];
+  recs.forEach(r=>{ const k=r.date?r.date.getMonth():-1; if(!(k in map)){ map[k]={dm:0,cv:0,ld:0,ca:0,sh:0,cl:0}; order.push(k); }
+    const m=map[k]; m.dm+=r.dm; m.cv+=r.cv; m.ld+=r.ld; m.ca+=r.ca; m.sh+=r.sh; m.cl+=r.cl; });
+  order.sort((a,b)=>a-b);
+  const tot={dm:0,cv:0,ld:0,ca:0,sh:0,cl:0};
+  const body=order.map(k=>{ const m=map[k]; for(const f in tot) tot[f]+=m[f];
+    const flip=(m.dm?Math.round(m.cv/m.dm*100):0)+'%';
+    const clCell='<td class="r"'+(m.cl?'':' style="color:var(--color-text-danger)')+'">'+m.cl+'</td>';
+    return '<tr><td>'+(k<0?'—':MN[k])+'</td><td class="r">'+m.dm+'</td><td class="r">'+m.cv+'</td><td class="r">'+flip+'</td><td class="r">'+m.ld+'</td><td class="r">'+m.ca+'</td><td class="r">'+m.sh+'</td>'+clCell+'</tr>';
+  }).join('');
+  const totFlip=(tot.dm?Math.round(tot.cv/tot.dm*100):0)+'%';
+  const totRow='<tr style="background:var(--color-background-secondary)"><td style="font-weight:500">Total</td><td class="r" style="font-weight:500">'+tot.dm+'</td><td class="r" style="font-weight:500">'+tot.cv+'</td><td class="r" style="font-weight:500">'+totFlip+'</td><td class="r" style="font-weight:500">'+tot.ld+'</td><td class="r" style="font-weight:500">'+tot.ca+'</td><td class="r" style="font-weight:500">'+tot.sh+'</td><td class="r" style="font-weight:500">'+tot.cl+'</td></tr>';
+  tb.innerHTML=body+totRow;
+}
+function applyData(d){
+  document.getElementById('kpiDMs').textContent=d.totalDMs;
+  document.getElementById('kpiCalls').textContent=d.callsBooked;
+  document.getElementById('kpiRevenue').textContent=d.warmRevenue;
+  const rl=document.getElementById('kpiRevLabel'); if(rl&&d.warmRevLabel) rl.textContent=d.warmRevLabel;
+  document.getElementById('ovDate').textContent='As of '+d.asOf;
+  const ce=document.getElementById('kpiCloses'); ce.textContent=d.closes;
+  ce.style.color=d.closes===0?'var(--color-text-danger)':'var(--color-text-primary)';
+  document.getElementById('funnelHeading').textContent='Funnel conversion ('+d.totalDMs+' prospects → '+d.closes+' closes)';
+  const stages=[['Prospects reached',d.totalDMs],['Conversations',d.convos],['Leads',d.leads],['Calls booked',d.callsBooked],['Showed up',d.showUps],['Closes',d.closes]];
+  const p=(n,prev)=>prev>0?Math.round(n/prev*100)+'%':'—';
+  document.getElementById('funnelStages').innerHTML=stages.map((s,i)=>'<tr><td>'+s[0]+'</td><td class="r">'+s[1]+'</td><td class="r">'+(i===0?'—':p(s[1],stages[i-1][1]))+'</td></tr>').join('');
+}
+
+/* ---------- CONTENT (Instagram / FB / Reels / Story) ---------- */
+// forward-fill a grouping key, summing fields per group, preserving order
+function aggByWeek(objs, weekKey, fields){
+  const order=[], map={}; let cur='';
+  objs.forEach(o=>{
+    if(o[weekKey] && o[weekKey].trim()) cur=o[weekKey].trim();
+    if(!cur) return;
+    if(!map[cur]){ map[cur]={}; fields.forEach(f=>map[cur][f]=0); order.push(cur); }
+    fields.forEach(f=> map[cur][f]+= num(o[f.col!==undefined?f.col:f]) );
+  });
+  return { order, map };
+}
+function platformAgg(objs, engKey){
+  const a={posts:0,reach:0,likes:0,followers:0,leads:0,eng:[]};
+  objs.forEach(o=>{
+    const reach=num(o['Reach']); if(reach<=0 && !o['Post Date']) return;
+    if(reach>0) a.posts++;
+    a.reach+=reach; a.likes+=num(o['Likes']); a.leads+=num(o['Leads']);
+    a.followers+=num(o['New Followers']);
+    const e=pct(o[engKey]); if(e!==null && e>0) a.eng.push(e);
+  });
+  return a;
+}
+// aggregate the Supermetrics IG feed: posts, reach, likes, and per-post engagement % = (likes+comments+saves)/reach
+function igFeedAgg(feed){
+  const a={posts:0,reach:0,likes:0,followers:0,leads:0,eng:[]};
+  feed.forEach(p=>{ if(p.reach>0){ a.posts++; a.reach+=p.reach; a.likes+=p.likes; a.eng.push((p.likes+p.comments+p.saves)/p.reach*100); } });
+  return a;
+}
+
+function buildContent(ig, fb, reels, story, igFeed){
+  const igManual = platformAgg(ig,'Engagement Rate'); // manual IG tab supplies Followers + Leads
+  const igA = (igFeed && igFeed.length) ? Object.assign(igFeedAgg(igFeed), {followers:igManual.followers, leads:igManual.leads}) : igManual;
+  const fbA = platformAgg(fb,'Engagement rate');
+  const reelReach = reels.reduce((s,o)=>s+num(o['Reach']),0);
+  const reelFol   = reels.reduce((s,o)=>s+num(o['New Followers']),0);
+  const reelLeads = reels.reduce((s,o)=>s+num(o['Leads']),0);
+  const reelPosts = reels.filter(o=>num(o['Reach'])>0).length;
+
+  const totals = {
+    followers: igA.followers + reelFol,
+    reach: igA.reach + fbA.reach + reelReach,
+    posts: igA.posts + fbA.posts + reelPosts,
+    leads: igA.leads + fbA.leads + reelLeads,
+    eng: avg(igA.eng)
+  };
+
+  // weekly IG (grouped by 'Month + week', labelled with the real post date day.month)
+  const wkOrder=[], wmap={}; let cur='';
+  ig.forEach(o=>{ const k=(o['Month + week']||'').trim(); if(k) cur=k; if(!cur) return;
+    if(!wmap[cur]){ wmap[cur]={reach:0,fol:0,leads:0,dmin:null}; wkOrder.push(cur); }
+    const g=wmap[cur]; g.reach+=num(o['Reach']); g.fol+=num(o['New Followers']); g.leads+=num(o['Leads']);
+    if(o._d&&(!g.dmin||o._d<g.dmin)) g.dmin=o._d; });
+  const weekly = {
+    labels: wkOrder.map(k=>wmap[k].dmin?(wmap[k].dmin.getDate()+'.'+(wmap[k].dmin.getMonth()+1)):k),
+    reach:  wkOrder.map(k=>wmap[k].reach),
+    fol:    wkOrder.map(k=>wmap[k].fol),
+    leads:  wkOrder.map(k=>wmap[k].leads)
+  };
+
+  // per-post IG list — from the Supermetrics "IG Feed by Date" tab when available, else the manual IG tab
+  const igPosts = (igFeed && igFeed.length) ? igFeed.map(p=>({
+      date:p.date, link:p.link, type:p.type, reach:p.reach, likes:p.likes, saves:p.saves
+    })) : ig.filter(o=>num(o['Reach'])>0).sort((a,b)=>((b._d&&b._d.getTime())||0)-((a._d&&a._d.getTime())||0)).map(o=>({
+      date:fmtEU(o['Post Date']||''), link:o['Post Link']||'', type:o['Post Type']||'',
+      reach:num(o['Reach']), likes:num(o['Likes']), saves:num(o['Saves'])
+    }));
+
+  // trial reels list
+  const reelRows = reels.filter(o=>o['Post Link'] && num(o['Reach'])>0).map(o=>({
+    name:o['Post Link'], reach:num(o['Reach']), eng:pct(o['Engagement rate']),
+    fol:num(o['New Followers']), watch:o['Average Watch Time (AVG)']||'—'
+  }));
+  const maxReach = Math.max(1,...reelRows.map(r=>r.reach));
+  reelRows.forEach(r=> r.status = r.reach>=maxReach*0.66 ? 'Double Down' : (r.reach>=maxReach*0.4 ? 'Testing' : 'Rejected'));
+
+  // story: group by Post Date (forward-filled)
+  const stMap={}, stOrder=[]; let curD='';
+  story.forEach(o=>{
+    if(o['Post Date'] && o['Post Date'].trim()) curD=o['Post Date'].trim();
+    if(!curD) return;
+    if(!stMap[curD]){ stMap[curD]={slides:0,views:0,exits:[]}; stOrder.push(curD); }
+    stMap[curD].slides++; stMap[curD].views+=num(o['Views']);
+    const ex=pct(o['Exit rate']); if(ex!==null) stMap[curD].exits.push(ex);
+  });
+  const storyRows = stOrder.map(d=>({date:d,slides:stMap[d].slides,views:stMap[d].views,exit:avg(stMap[d].exits)}));
+
+  // top formats by IG Post Type
+  const fmtMap={};
+  ig.forEach(o=>{ const t=(o['Post Type']||'').trim(); if(!t||num(o['Reach'])<=0) return;
+    if(!fmtMap[t]) fmtMap[t]={posts:0,reach:0,likes:0,leads:0};
+    fmtMap[t].posts++; fmtMap[t].reach+=num(o['Reach']); fmtMap[t].likes+=num(o['Likes']); fmtMap[t].leads+=num(o['Leads']); });
+  const formats = Object.keys(fmtMap).map(k=>({type:k,...fmtMap[k]})).sort((a,b)=>b.reach-a.reach);
+
+  return { igA, fbA, totals, weekly, igPosts, reelRows, storyRows, formats };
+}
+
+function renderContent(c){
+  document.getElementById('cFollowers').textContent='+'+fmtN(c.totals.followers);
+  document.getElementById('cReach').textContent=fmtK(c.totals.reach);
+  document.getElementById('cPosts').textContent=c.totals.posts;
+  document.getElementById('cLeads').textContent=c.totals.leads;
+  document.getElementById('cEng').textContent=c.totals.eng.toFixed(1)+'%';
+  document.getElementById('ovFollowers').textContent='+'+fmtN(c.totals.followers);
+  document.getElementById('ovReach').textContent=fmtK(c.totals.reach);
+  document.getElementById('ovLeads').textContent=c.totals.leads;
+  document.getElementById('ovEng').textContent=c.totals.eng.toFixed(1)+'%';
+
+  const plat=(name,icon,color,a,hasFol)=>'<tr><td style="font-weight:500"><i class="ti '+icon+'" style="color:'+color+';margin-right:6px" aria-hidden="true"></i>'+name+'</td>'+
+    '<td class="r">'+a.posts+'</td><td class="r">'+fmtN(a.reach)+'</td><td class="r">'+fmtN(a.likes)+'</td>'+
+    '<td class="r">'+(hasFol?fmtN(a.followers):'—')+'</td><td class="r">'+a.leads+'</td><td class="r">'+(a.eng.length?avg(a.eng).toFixed(1)+'%':'—')+'</td></tr>';
+  document.getElementById('platformRows').innerHTML =
+    plat('Instagram','ti-brand-instagram','var(--accent)',c.igA,true) +
+    plat('Facebook','ti-brand-facebook','var(--color-text-secondary)',c.fbA,false);
+
+  const ipr=document.getElementById('igPostRows');
+  if(ipr) ipr.innerHTML = c.igPosts.length ? c.igPosts.slice(0,15).map(p=>
+    '<tr><td>'+esc(p.date)+'</td><td>'+(/^https?:\/\//i.test(p.link)?'<a href="'+esc(p.link)+'" target="_blank" rel="noopener">open ↗</a>':esc(p.type||'—'))+
+    '</td><td class="r">'+fmtN(p.reach)+'</td><td class="r">'+fmtN(p.likes)+'</td><td class="r">'+fmtN(p.saves||0)+'</td></tr>'
+  ).join('') : '<tr><td colspan="5" class="muted">No posts yet.</td></tr>';
+
+  const pillFor=s=> s==='Double Down'?'background:var(--color-background-success);color:var(--color-text-success)':
+                    s==='Rejected'?'background:var(--color-background-danger);color:var(--color-text-danger)':
+                    'background:var(--color-background-warning);color:var(--color-text-warning)';
+  document.getElementById('reelRows').innerHTML = c.reelRows.length ? c.reelRows.map(r=>
+    '<tr><td>'+(/^https?:\/\//i.test(r.name)?'<a href="'+esc(r.name)+'" target="_blank" rel="noopener">open ↗</a>':esc(r.name))+'</td><td class="r">'+fmtN(r.reach)+'</td><td class="r">'+(r.eng!==null?r.eng.toFixed(1)+'%':'—')+
+    '</td><td class="r">'+r.fol+'</td><td class="r">'+esc(r.watch)+'</td><td><span class="pill" style="'+pillFor(r.status)+'">'+r.status+'</span></td></tr>'
+  ).join('') : '<tr><td colspan="6" class="muted">No trial reels yet.</td></tr>';
+
+  document.getElementById('storyRows').innerHTML = c.storyRows.length ? c.storyRows.slice(-8).map(s=>
+    '<tr><td>'+esc(fmtEU(s.date))+'</td><td class="r">'+s.slides+'</td><td class="r">'+fmtN(s.views)+
+    '</td><td class="r">'+s.exit.toFixed(1)+'%</td><td class="r">'+(100-s.exit).toFixed(1)+'%</td></tr>'
+  ).join('') : '<tr><td colspan="5" class="muted">No story data yet.</td></tr>';
+
+  document.getElementById('formatRows').innerHTML = c.formats.length ? c.formats.slice(0,6).map((f,i)=>
+    '<tr'+(i===0?' style="background:rgba(46,139,255,0.06)"':'')+'><td style="font-weight:500">'+esc(f.type)+'</td><td class="r">'+f.posts+
+    '</td><td class="r">'+fmtN(f.reach)+'</td><td class="r">'+fmtN(f.likes)+'</td><td class="r">'+f.leads+'</td></tr>'
+  ).join('') : '<tr><td colspan="5" class="muted">No posts yet.</td></tr>';
+
+  renderContentCharts(c);
+}
+
+/* ---------- CRM ---------- */
+function statusPill(s){
+  const t=(s||'').toLowerCase();
+  let st='background:var(--color-background-secondary);color:var(--color-text-secondary)';
+  if(t.includes('closed')) st='background:var(--color-background-success);color:var(--color-text-success)';
+  else if(t.includes('booked')) st='background:var(--color-background-warning);color:var(--color-text-warning)';
+  else if(t.includes('cancel')||t.includes('bounced')||t.includes('dead')) st='background:var(--color-background-danger);color:var(--color-text-danger)';
+  else if(t.includes('followup')||t.includes('follow up')) st='background:var(--accent-soft);color:var(--accent)';
+  return '<span class="pill" style="'+st+'">'+esc(s||'—')+'</span>';
+}
+function parseCRM(csv){
+  const rows = toObjects(csv,'Contact Name').filter(o=>o['Contact Name']);
+  rows.forEach(o=>o._d=parseMD(o['Booked Call Date']));
+  return rows;
+}
+function renderCRM(allRows){
+  const rows = allRows.filter(o=>inRange(o._d)); // pipeline + traffic respect the timeframe
+  document.getElementById('crmRows').innerHTML = rows.map(o=>{
+    const note=(o['Prospects info']||'').replace(/\s+/g,' ').slice(0,90);
+    return '<tr><td style="font-weight:500">'+esc(o['Contact Name'])+'</td><td>'+esc(o['Platform']||'—')+
+      '</td><td>'+esc(fmtEU(o['Booked Call Date'])||'—')+'</td><td>'+statusPill(o['Status'])+
+      '</td><td style="color:var(--color-text-secondary)">'+esc(note)+(note.length>=90?'…':'')+'</td></tr>';
+  }).join('') || '<tr><td colspan="5" class="muted">No prospects in range.</td></tr>';
+
+  // traffic source: count booked-call rows by platform
+  const booked = rows.filter(o=>(o['Booked Call Date']||'').trim());
+  const tmap={}; booked.forEach(o=>{ const p=(o['Platform']||'Other').trim()||'Other'; tmap[p]=(tmap[p]||0)+1; });
+  const tot=booked.length||1;
+  document.getElementById('trafficRows').innerHTML = Object.keys(tmap).map(p=>
+    '<tr><td>'+esc(p)+'</td><td class="r">'+tmap[p]+'</td><td class="r">'+Math.round(tmap[p]/tot*100)+'%</td></tr>'
+  ).join('') || '<tr><td colspan="3" class="muted">—</td></tr>';
+
+  const closed = allRows.filter(o=>(o['Status']||'').toLowerCase().includes('closed'))
+    .map(o=>({name:o['Contact Name'], status:o['Status'], note:''}))
+    .concat((typeof MANUAL_CLOSED!=='undefined'?MANUAL_CLOSED:[]).map(m=>({name:m.name, status:'Closed', note:m.note||''})));
+  document.getElementById('closedRows').innerHTML = closed.length ? closed.map(o=>
+    '<tr><td style="font-weight:500">'+esc(o.name)+(o.note?' <span class="muted">· '+esc(o.note)+'</span>':'')+'</td><td>'+statusPill(o.status)+'</td></tr>'
+  ).join('') : '<tr><td colspan="2" class="muted">No closed deals yet.</td></tr>';
+
+  // Stale leads: prospects stuck in the pipeline (not closed, status signals a stall).
+  const STALE=['followup','follow up','waitlist','flagged','stale','lead'];
+  const stale = allRows.filter(o=>{ const t=(o['Status']||'').toLowerCase(); return !t.includes('closed') && STALE.some(s=>t.includes(s)); });
+  document.getElementById('staleRows').innerHTML = stale.length ? stale.map(o=>{
+    const note=(o['Prospects info']||'').replace(/\s+/g,' ').slice(0,80);
+    return '<tr><td style="font-weight:500">'+esc(o['Contact Name'])+'</td><td>'+statusPill(o['Status'])+
+      '</td><td>'+esc(o['Platform']||'—')+'</td><td style="color:var(--color-text-secondary)">'+esc(note)+(note.length>=80?'…':'')+'</td></tr>';
+  }).join('') : '<tr><td colspan="4" class="muted">No stale leads — pipeline is clean.</td></tr>';
+}
+
+/* ---------- status + tabs ---------- */
+function setStatus(mode, detail, label){
+  const b=document.getElementById('dataStatus'); b.classList.remove('live','cached'); b.classList.add(mode);
+  document.getElementById('statusLabel').textContent = label||(mode==='live'?'Live':'Cached');
+  document.getElementById('statusDetail').textContent = detail?'· '+detail:'';
+}
+let outboundStatus={mode:'cached',detail:''}, contentOK=false, crmOK=false;
+let liveData=FALLBACK, contentData=null, currentView='overview';
+const rendered={outbound:false,funnel:false,content:false};
+
+function viewStatus(name){
+  if(name==='content') setStatus(contentOK?'live':'cached', contentOK?'Synced':'Sample', contentOK?'Live':'Sample');
+  else if(name==='crm') setStatus(crmOK?'live':'cached', crmOK?'Synced':'Snapshot', crmOK?'Live':'Snapshot');
+  else setStatus(outboundStatus.mode,outboundStatus.detail);
+}
+function switchView(name){
+  currentView=name;
+  ['overview','outbound','funnel','content','crm'].forEach(v=>{
+    document.getElementById('view-'+v).hidden=(v!==name);
+    const t=document.getElementById('tab-'+v); t.classList.toggle('active',v===name); t.setAttribute('aria-selected',v===name?'true':'false');
+  });
+  document.getElementById('brandSub').textContent = '@tomastraan | Tomas Tran';
+  viewStatus(name);
+  if(name==='outbound'&&!rendered.outbound){ renderOutboundChart(liveData); rendered.outbound=true; }
+  if(name==='funnel'&&!rendered.funnel){ renderFunnelChart(liveData); rendered.funnel=true; }
+  if(name==='content'&&!rendered.content&&contentData){ renderContentCharts(contentData); rendered.content=true; }
+}
+
+/* ---------- charts ---------- */
+const gridColor='rgba(255,255,255,0.08)', textColor='rgba(255,255,255,0.7)';
+let weeklyChart,funnelChart,igChart,folChart;
+function renderOutboundChart(d){
+  if(weeklyChart)weeklyChart.destroy();
+  weeklyChart=new Chart(document.getElementById('weeklyDMs2'),{type:'bar',
+    data:{labels:d.weekLabels,datasets:[{label:'DMs sent',data:d.dmsByWeek,
+      backgroundColor:ctx=>ctx.dataIndex>=d.dmsByWeek.length-5?'#2E8BFF':'#85B7EB',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:gridColor},ticks:{color:textColor,font:{size:11}}},x:{grid:{display:false},ticks:{color:textColor,font:{size:11},autoSkip:false}}}}});
+}
+function renderFunnelChart(d){
+  if(funnelChart)funnelChart.destroy();
+  funnelChart=new Chart(document.getElementById('funnelChart2'),{type:'bar',
+    data:{labels:['Prospects reached ('+d.totalDMs+')','Convos ('+d.convos+')','Leads ('+d.leads+')','Calls booked ('+d.callsBooked+')','Showed up ('+d.showUps+')','Closes ('+d.closes+')'],
+      datasets:[{data:[d.totalDMs,d.convos,d.leads,d.callsBooked,d.showUps,Math.max(d.closes,0.4)],backgroundColor:['#2E8BFF','#5DCAA5','#C0DD97','#FAC775','#AFA9EC','#F09595'],borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:gridColor},ticks:{color:textColor,font:{size:11}}},y:{grid:{display:false},ticks:{color:textColor,font:{size:11}}}}}});
+}
+function renderContentCharts(c){
+  if(igChart)igChart.destroy(); if(folChart)folChart.destroy();
+  igChart=new Chart(document.getElementById('igReach'),{type:'bar',
+    data:{labels:c.weekly.labels,datasets:[{label:'IG reach',data:c.weekly.reach,backgroundColor:'#2E8BFF',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:gridColor},ticks:{color:textColor,font:{size:11}}},x:{grid:{display:false},ticks:{color:textColor,font:{size:10},autoSkip:true,maxRotation:0}}}}});
+  folChart=new Chart(document.getElementById('folLeads'),{type:'bar',
+    data:{labels:c.weekly.labels,datasets:[
+      {label:'Followers',type:'bar',data:c.weekly.fol,backgroundColor:'#5DCAA5',borderRadius:4,yAxisID:'y'},
+      {label:'Leads',type:'line',data:c.weekly.leads,borderColor:'#FAC775',backgroundColor:'#FAC775',tension:0.3,yAxisID:'y1'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:textColor,font:{size:11},boxWidth:12}}},
+      scales:{y:{position:'left',grid:{color:gridColor},ticks:{color:textColor,font:{size:11}}},y1:{position:'right',grid:{display:false},ticks:{color:textColor,font:{size:11}}},x:{grid:{display:false},ticks:{color:textColor,font:{size:10},autoSkip:true,maxRotation:0}}}}});
+}
+
+/* ---------- boot ---------- */
+function renderAll(){
+  let d;
+  if(DATASETOK.outbound){ d=aggDMS(RAW.dms.filter(r=>inRange(r.date))); liveData=d; }
+  else { d=FALLBACK; liveData=FALLBACK; }
+  applyData(d);
+  renderMonthly(DATASETOK.outbound?RAW.dms:[]);
+  if(rendered.outbound) renderOutboundChart(d);
+  if(rendered.funnel) renderFunnelChart(d);
+
+  if(contentOK){
+    const c=buildContent(RAW.ig.filter(o=>inRange(o._d)),RAW.fb.filter(o=>inRange(o._d)),RAW.reels.filter(o=>inRange(o._d)),RAW.story.filter(o=>inRange(o._d)),RAW.igFeed.filter(o=>inRange(o._d)));
+    contentData=c; renderContent(c);
+  }
+  if(crmOK) renderCRM(RAW.crm);
+}
+async function boot(){
+  // Outbound / funnel — weekly tracker is the historical source
+  try{ RAW.dms=parseDMS(await fetchCSV(GID.dms)); DATASETOK.outbound=true; outboundStatus={mode:'live',detail:aggDMS(RAW.dms).asOf}; }
+  catch(e){ console.warn('DMs fetch failed:',e.message); RAW.dms=[]; DATASETOK.outbound=false; outboundStatus={mode:'cached',detail:FALLBACK.asOf}; }
+  // Daily IG + FB DMs tabs — combined per day, going forward; drop overlapping weekly rows, then append
+  let dailyIg=[], dailyFb=[];
+  try{ dailyIg=parseDailyDMS(await fetchCSV(GID.dailyIg)); }catch(e){ console.warn('Daily IG DMs failed:',e.message); }
+  try{ dailyFb=parseDailyDMS(await fetchCSV(GID.dailyFb)); }catch(e){ console.warn('Daily FB DMs failed:',e.message); }
+  const daily=mergeDaily(dailyIg,dailyFb);
+  if(daily.length){ DATASETOK.outbound=true;
+    const earliest=daily.reduce((mn,r)=>(r.date&&(!mn||r.date<mn))?r.date:mn,null);
+    if(earliest) RAW.dms=RAW.dms.filter(r=>!r.date||r.date<earliest);
+    RAW.dms=RAW.dms.concat(daily);
+  }
+  // Content
+  try{
+    const [ig,fb,reels,story]=await Promise.all([fetchCSV(GID.ig),fetchCSV(GID.fb),fetchCSV(GID.reels),fetchCSV(GID.story)]);
+    RAW.ig=parseObjs(ig,'Month + week'); RAW.fb=parseObjs(fb,'Week'); RAW.reels=parseObjs(reels,'Month + week'); RAW.story=parseObjs(story,'Slide number');
+    contentOK=true; document.getElementById('contentNote').textContent='live';
+  }catch(e){ console.warn('Content fetch failed:',e.message); document.getElementById('contentNote').textContent='sample (fetch failed)'; }
+  // IG posts — Supermetrics "IG Feed by Date" (auto-updated); own try so a hiccup doesn't kill the Content tab
+  try{ RAW.igFeed=parseIgFeed(await fetchCSV(GID.igFeed)); }catch(e){ console.warn('IG feed fetch failed:',e.message); RAW.igFeed=[]; }
+  // CRM
+  try{ RAW.crm=parseCRM(await fetchCSV(GID.crm)); crmOK=true; document.getElementById('crmNote').textContent='live'; }
+  catch(e){ console.warn('CRM fetch failed:',e.message); document.getElementById('crmNote').textContent='snapshot (fetch failed)'; }
+
+  computeAnchor(); updateLastUpdated(); renderAll(); viewStatus(currentView);
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const rb=document.getElementById('rangeBar');
+  if(rb) rb.addEventListener('click', e=>{ const b=e.target.closest('.range-btn'); if(!b) return;
+    RANGE=+b.dataset.days; rb.querySelectorAll('.range-btn').forEach(x=>x.classList.toggle('active',x===b)); renderAll(); });
+  boot(); setInterval(boot, 60000);
+});
+</script>
+</body>
+</html>
